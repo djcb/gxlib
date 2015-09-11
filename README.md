@@ -15,6 +15,11 @@ using it with a functional flavor, and takes inspiration from
 way they allow for solving problems such as those from
 [Project Euler](https://projecteuler.net).
 
+# Documentation
+
+All functions have been documented, many with examples. Go
+[here](http://www.djcbsoftware.nl/code/gxlib/).
+
 # Examples
 
 Here are some examples. If you're not familiar with ``map`` and
