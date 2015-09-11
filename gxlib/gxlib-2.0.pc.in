@@ -1,0 +1,15 @@
+#
+# pkg-config file for gxlib-2.0
+#
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: GXLib
+Description: Extensions for GLib 2.x
+Version: @VERSION@
+Libs: -L${libdir} -lgxlib-2.0
+Cflags: -I${includedir}/gxlib-2.0
+Requires: glib-2.0

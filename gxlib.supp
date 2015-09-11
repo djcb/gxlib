@@ -1,0 +1,137 @@
+# -*-mode:sh-*-
+
+# glib
+{
+    quark_from_string
+    Memcheck:Cond
+    ...
+    fun:quark_from_string
+}
+
+
+
+
+# glib
+{
+    register_static
+    Memcheck:Leak
+    ...
+    fun:g_type_register_static
+}
+
+
+
+
+
+# glib
+{
+    register_static
+    Memcheck:Leak
+    ...
+    fun:g_type_register_static
+}
+
+
+
+# glib
+{
+    register_fundamental
+    Memcheck:Leak
+    ...
+    fun:g_type_register_fundamental
+}
+
+
+
+# gobject
+{
+    init_ctor
+    Memcheck:Leak
+    ...
+    fun:gobject_init_ctor
+}
+
+
+
+# gobject
+{
+    do_class_init
+    Memcheck:Leak
+    ...
+    fun:g_object_do_class_init
+}
+
+
+{
+    g_type_create_instance
+    Memcheck:Leak
+    ...
+    fun:g_type_create_instance
+}
+
+
+{
+    # XXX double check
+    install_monitor
+    Memcheck:Leak
+    ...
+    fun:g_system_thread_new
+}
+
+
+{
+    # XXX double check
+    dbus_connect
+    Memcheck:Leak
+    ...
+    fun:_g_dbus_worker_do_read_cb
+}
+
+
+{
+   glib_quark_from_string
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:quark_new
+   fun:quark_from_string
+}
+
+
+
+# gobject
+{
+    init_Wm
+    Memcheck:Leak
+    ...
+    fun:type_class_init_Wm
+}
+
+#bash
+{
+    bash_set_default_locale
+    Memcheck:Leak
+    ...
+    fun:set_default_locale
+}
+
+{
+    bash_expand_string_assignment
+    Memcheck:Leak
+    ...
+    fun:expand_string_assignment
+}
+
+{
+    bash_reader_loop
+    Memcheck:Leak
+    ...
+    fun:reader_loop
+}
+
+{
+    bash_expand_word_unsplit
+    Memcheck:Leak
+    ...
+    fun:expand_word_unsplit
+}
