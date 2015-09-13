@@ -17,15 +17,20 @@
 **  02110-1301, USA.
 */
 
-#ifndef __GX_LIB_H__
-#define __GX_LIB_H__
+
+#ifndef __GXPATH_H__
+#define __GXPATH_H__
 
 #include <glib.h>
 
-#include <gxlib/gxstr.h>
-#include <gxlib/gxfunc.h>
-#include <gxlib/gxpath.h>
-#include <gxlib/gxpred.h>
-#include <gxlib/gxlist.h>
+G_BEGIN_DECLS
 
-#endif /* __GX_LIB_H__ */
+gchar* gx_path_resolve (const gchar *file_name)
+  G_GNUC_WARN_UNUSED_RESULT;
+
+G_END_DECLS
+
+#endif /* __GXPATH_H__ */
+
+
+

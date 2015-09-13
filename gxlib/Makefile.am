@@ -36,6 +36,7 @@ lib_LTLIBRARIES=					\
 libgxlib_2_0_la_SOURCES=				\
 	gxlist.c					\
 	gxfunc.c					\
+	gxpath.c					\
 	gxpred.c					\
 	gxstr.c
 
@@ -44,6 +45,7 @@ libgxlibinclude_HEADERS=				\
 	gxfunc.h					\
 	gxlib.h						\
 	gxlist.h					\
+	gxpath.h					\
 	gxpred.h					\
 	gxstr.h
 

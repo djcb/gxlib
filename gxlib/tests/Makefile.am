@@ -22,7 +22,10 @@ AM_CPPFLAGS=					\
 	-I$(top_srcdir)				\
 	$(GLIB_CFLAGS)				\
 	$(WARN_CFLAGS)				\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)				\
+	-DSRCDIR=\"${srcdir}\"			\
+	-DABS_SRCDIR=\"${abs_srcdir}\"
+
 
 AM_LDFLAGS=					\
 	$(GLIB_LIBS)				\
@@ -43,6 +46,9 @@ test_gxpred_SOURCES=test-gxpred.c
 
 TEST_PROGS += test-gxstr
 test_gxstr_SOURCES=test-gxstr.c
+
+TEST_PROGS += test-gxpath
+test_gxpath_SOURCES=test-gxpath.c
 
 TEST_PROGS += test-examples
 test_examples_SOURCES=test-examples.c

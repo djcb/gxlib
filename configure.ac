@@ -86,6 +86,7 @@ AC_ARG_ENABLE([dirent-d-ino],
 AS_IF([test "x$ac_cv_member_struct_dirent_d_ino" != "xyes"],
 	    [use_dirent_d_ino="no"], [use_dirent_d_ino="yes"])
 
+AC_CHECK_HEADERS([wordexp.h])
 
 # check for gtk-doc (optional)
 m4_ifdef([GTK_DOC_CHECK], [

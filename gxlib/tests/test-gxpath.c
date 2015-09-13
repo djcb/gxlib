@@ -17,15 +17,41 @@
 **  02110-1301, USA.
 */
 
-#ifndef __GX_LIB_H__
-#define __GX_LIB_H__
+#include <gxlib/gxlib.h>
 
-#include <glib.h>
+static void
+test_expand (void)
+{
+  char *s, *t;
 
-#include <gxlib/gxstr.h>
-#include <gxlib/gxfunc.h>
-#include <gxlib/gxpath.h>
-#include <gxlib/gxpred.h>
-#include <gxlib/gxlist.h>
+  s = gx_path_resolve ("~/hello.txt");
+  t = g_build_path ("/", g_get_home_dir(), "hello.txt", NULL);
 
-#endif /* __GX_LIB_H__ */
+  g_assert_cmpstr (s,==,t);
+
+  g_free (s);
+  g_free (t);
+}
+
+static void
+test_resolve (void)
+{
+  char *s;
+
+  s = gx_path_resolve (SRCDIR);
+  g_assert_cmpstr (s,==,ABS_SRCDIR);
+
+  g_free (s);
+}
+
+
+int
+main (int argc, char *argv[])
+{
+  g_test_init (&argc, &argv, NULL); 
+  g_test_add_func ("/gx-path/expand", test_expand);
+  g_test_add_func ("/gx-path/resolve", test_resolve);
+  
+  return g_test_run ();
+}
+
