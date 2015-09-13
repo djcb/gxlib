@@ -30,11 +30,6 @@ loop.
 However, after a while, many common problems can be easily expressed
 as number of those operations.
 
-##
-
-Let's take an array of strings, uppercase them, and then combine them
-in a single string, separated by colons.
-
 ## Product of primes
 
 Let's take the product of the prime numbers up to 20. We could make a
