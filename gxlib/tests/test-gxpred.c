@@ -54,6 +54,18 @@ test_prime (void)
 }
 
 
+static void
+test_str_equal (void)
+{
+  g_assert_true (gx_is_str_equal ("foo", "foo"));
+  g_assert_false (gx_is_str_equal ("foo", "bar"));
+
+  g_assert_true (gx_is_str_equal (NULL, NULL));
+  g_assert_false (gx_is_str_equal (NULL, "bar"));
+  g_assert_false (gx_is_str_equal ("foo", NULL));
+}
+
+
 int
 main (int argc, char *argv[])
 {
@@ -62,6 +74,7 @@ main (int argc, char *argv[])
   g_test_add_func ("/gx-pred/is-even", test_even);
   g_test_add_func ("/gx-pred/is-odd", test_odd);
   g_test_add_func ("/gx-pred/is-prime", test_prime);
+  g_test_add_func ("/gx-pred/is-str-equal", test_str_equal);
   
   return g_test_run ();
 }

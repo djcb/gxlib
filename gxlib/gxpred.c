@@ -49,3 +49,24 @@ gx_is_prime (gint i)
   return TRUE;
 }
 
+
+/**
+ * gx_is_str_equal:
+ * @s1: a string
+ * @s2: another string
+ * 
+ * Predicate function that returns %TRUE if the strings are equal; %FALSE
+ * otherwise. Safe for %NULL strings.
+ *
+ * |[<!-- language="C" -->
+ * g_assert_true (gx_is_str_equal ("foo", "foo"));
+ * g_assert_false (gx_is_str_equal ("foo", "bar"));
+ * ]|
+ * 
+ * Returns: %TRUE if @s1 and @s2 are equal, %FALSE otherwise.
+ */
+gboolean
+gx_is_str_equal (const char *s1, const char *s2)
+{
+  return g_strcmp0 (s1, s2) == 0 ? TRUE : FALSE;
+}

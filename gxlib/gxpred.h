@@ -101,8 +101,9 @@ gx_is_odd (gint i)
   return (i & 1) == 0 ? FALSE : TRUE;
 }
 
-
 gboolean gx_is_prime (gint i);
+
+gboolean gx_is_str_equal (const char *s1, const char *s2);
 
 
 G_END_DECLS
