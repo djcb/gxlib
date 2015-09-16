@@ -1,14 +1,14 @@
 # GXLib
 
-[GLib](https://developer.gnome.org/glib/) is a library that provides
-(among others) many of the basic data structures such as lists and
-hash-tables one needs when programming in C.
+[GLib](https://developer.gnome.org/glib/) is a wonderful library that
+provides (among others) many of the basic data structures one needs
+when programming in C, such as lists and hash-tables.
 
-GXLib is a library that provides extensions to GLib as I'm using for
-my own programs. Since it depends on GLib 2.x, GXLib's versioning also
-starts with 2.x.
+GXLib is a library that provides extensions to GLib that I'm using for
+my own programs. Since it depends on GLib 2.x (2.38 or later), GXLib's
+versioning also starts with 2.x.
 
-So far, there are a number of extensions fo `GList` that allows for
+So far, there are a number of extensions fo `GList` that allow for
 using it with a functional flavor, and takes inspiration from
 [Mozilla's Rust](https://www.rust-lang.org) and
 [Scheme's SRFI-1](http://srfi.schemers.org/srfi-1/srfi-1.html) and the
@@ -17,7 +17,7 @@ way they allow for solving problems such as those from
 
 # Documentation
 
-All functions have been documented, many with examples. Go
+All functions have been documented, many with examples. See
 [here](http://www.djcbsoftware.nl/code/gxlib/).
 
 # Examples
@@ -27,8 +27,9 @@ Here are some examples. If you're not familiar with ``map`` and
 esp. since you can probably think of a way to do it with an explicit
 loop.
 
-However, after a while, many common problems can be easily expressed
-as number of those operations.
+However, after getting used to them, they provide a very natural and
+clean way to express solutions to problems. And not only for the kind
+of mathematical puzzles that are so useful for small examples.
 
 ## Product of primes
 
@@ -59,7 +60,7 @@ g_list_free (nums);
 # Contributing
 
 `GXLib` is a young library, so there is ample opportunity for adding
-more functionality.... contributations are welcome! Here are some
+more functionality.... contributions are welcome! Here are some
 guidelines:
 
 - Follow the existing coding style; like `GLib` itself, `GXLib` uses
