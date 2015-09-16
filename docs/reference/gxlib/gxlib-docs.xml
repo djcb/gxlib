@@ -37,6 +37,11 @@
         <xi:include href="xml/gxstr.xml"/>
   </chapter>
 
+    <chapter>
+    <title>Paths</title>
+        <xi:include href="xml/gxpath.xml"/>
+  </chapter>
+
   
   <chapter id="object-tree">
     <title>Object Hierarchy</title>

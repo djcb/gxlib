@@ -16,7 +16,8 @@
 **  Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
 **  02110-1301, USA.
 */
-
+#include <limits.h>
+#include <stdlib.h>
 #include <gxlib/gxlib.h>
 
 static void
@@ -36,12 +37,26 @@ test_expand (void)
 static void
 test_resolve (void)
 {
-  char *s;
+  char *s, *r;
 
   s = gx_path_resolve (SRCDIR);
-  g_assert_cmpstr (s,==,ABS_SRCDIR);
+  r = realpath(s, NULL);
+  
+  g_assert_cmpstr (s,==,r);
 
   g_free (s);
+  free (r);
+}
+
+
+static void
+test_error (void)
+{
+  char *s;
+
+  s = gx_path_resolve ("\n");
+  g_assert (!s);
+
 }
 
 
@@ -51,6 +66,7 @@ main (int argc, char *argv[])
   g_test_init (&argc, &argv, NULL); 
   g_test_add_func ("/gx-path/expand", test_expand);
   g_test_add_func ("/gx-path/resolve", test_resolve);
+  g_test_add_func ("/gx-path/error", test_error);
   
   return g_test_run ();
 }
