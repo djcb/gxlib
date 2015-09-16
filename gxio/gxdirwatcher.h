@@ -24,14 +24,13 @@
 #include <gio/gio.h>
 
 /**
- * SECTION:gx-dir-watcher
+ * SECTION:gxdirwatcher
  * @title: Directory scanner and watcher
  * @short_description: scan a number of directories and watch them for changes
  * 
  * A scanner/watcher for directories.
  *
- * NOTE: #GXDirWatcher is experimental and its API and semantics are still
- * unstable.
+ * NOTE: #GXDirWatcher is experimental and its API and semantics are unstable.
  */
 
 G_BEGIN_DECLS
@@ -62,8 +61,8 @@ typedef struct _GXDirWatcherPrivate GXDirWatcherPrivate;
  */
 struct _GXDirWatcher {
 	/*< private > */
-	GObject parent;
-	GXDirWatcherPrivate *priv;
+	GObject			 parent;
+	GXDirWatcherPrivate	*priv;
 };
 
 /**
@@ -87,7 +86,7 @@ struct _GXDirWatcherClass {
  * 
  * Returns: the #GType
  */
-GType gx_dir_watcher_get_type (void) G_GNUC_CONST;
+GType gx_dir_watcher_get_type (void);
 
 
 
@@ -96,6 +95,8 @@ GType gx_dir_watcher_get_type (void) G_GNUC_CONST;
  * @GX_DIR_WATCHER_FLAG_NONE: no special flags
  * @GX_DIR_WATCHER_FLAG_MONITOR: install a change-monitor for each
  * 'interesting' (as per matches/ignores in gx_dir_watcher_new()) directory.
+ *
+ * Flags to influence #GXDirWatcher behavior.
  *
  */
 typedef enum {
