@@ -47,8 +47,8 @@ do_wordexp (const char *path)
   return g_strdup (path)
 #endif /*HAVE_WORDEXP_H*/
     
-  wordexp_t wexp;
-  char *dir;
+  wordexp_t  wexp;
+  char      *dir;
 
   if (wordexp (path, &wexp, 0) != 0)
     return NULL;
@@ -85,7 +85,12 @@ gx_path_resolve (const char *path)
 
   /* now resolve any symlinks, .. etc. */
   if (!realpath (dir, resolved))
-    return dir;
+    {
+      return dir;
+    }
   else
-    return g_strdup(resolved);
+    {
+      g_free (dir);
+      return g_strdup (resolved);
+    }
 }
