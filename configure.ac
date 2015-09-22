@@ -19,6 +19,7 @@ AC_PREREQ([2.62])
 AC_INIT([gxlib],[2.0.0],
         [https://github.com/djcb/gxlib/issues],[gxlib])
 AC_COPYRIGHT([Copyright (C) 2015 Dirk-Jan C. Binnema])
+AC_CONFIG_AUX_DIR([.])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([gxlib/gxlib.h])
