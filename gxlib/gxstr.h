@@ -28,6 +28,8 @@ GList* gx_strv_to_list (gchar **strv, gssize n) G_GNUC_WARN_UNUSED_RESULT;
 
 GList* gx_strv_to_list_copy (gchar **strv, gssize n) G_GNUC_WARN_UNUSED_RESULT;
 
+gchar* gx_utf8_flatten (const gchar *str, gssize len) G_GNUC_WARN_UNUSED_RESULT;
+
 G_END_DECLS
 
 #endif /* __GX_STR_H__ */

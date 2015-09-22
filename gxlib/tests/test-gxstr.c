@@ -19,6 +19,7 @@
 
 #include <gxlib/gxlib.h>
 #include <string.h>
+#include <locale.h>
 
 static void
 test_strv_to_list (void)
@@ -78,6 +79,38 @@ test_strv_to_list_copy (void)
   g_list_free_full (lst, g_free);
 }
 
+static void
+test_utf8_flatten (void)
+{
+  guint u;
+  struct
+  {
+    const char *str;
+    const char *flat;
+  }
+  cases[] =
+    {
+      { "hello", "hello" },
+      { "Mötley Crüe", "motley crue" },
+      { "Anders Jonas Ångström.", "anders jonas angstrom." },
+      { "Αναφορές", "αναφορες"},
+      { "Му (кириллицей)", "му (кириллицеи)" }
+    };
+
+  setlocale (LC_ALL, "");
+
+  for (u = 0; u != G_N_ELEMENTS(cases); ++u)
+    {
+      char *flat;
+      
+      flat = gx_utf8_flatten (cases[u].str, -1);
+
+      /* g_print ("'%s' '%s'\n", cases[u].flat, flat); */
+      
+      g_assert_cmpstr (cases[u].flat, ==, flat);
+      g_free (flat);
+    }
+}
 
 int
 main (int argc, char *argv[])
@@ -86,6 +119,7 @@ main (int argc, char *argv[])
 
   g_test_add_func ("/gx-str/strv-to-list", test_strv_to_list);
   g_test_add_func ("/gx-str/strv-to-list-copy", test_strv_to_list_copy);
+  g_test_add_func ("/gx-str/utf8-flatten", test_utf8_flatten);
 
   return g_test_run ();
 }

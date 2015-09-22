@@ -18,6 +18,7 @@
 */
 
 #include <gxlib.h>
+#include <string.h>
 
 /**
  * SECTION:gxstr
@@ -48,8 +49,7 @@ strv_to_list (gchar **strv, gssize n, gboolean copy)
 /**
  * gx_strv_to_list:
  * @strv: an array of strings
- * @n: (allow-none): the number of strings in the array, or < 0 if it is
- * %NULL-terminated.
+ * @n: the number of strings in the array, or < 0 if it is %NULL-terminated.
  *
  * Create a #GList from the string in @strv. The strings are not copied.
  * 
@@ -65,8 +65,7 @@ gx_strv_to_list (gchar **strv, gssize n)
 /**
  * gx_strv_to_list_copy:
  * @strv: an array of strings
- * @n: (allow-none): the number of strings in the array, or < 0 if it is
- * %NULL-terminated.
+ * @n: the number of strings in the array, or < 0 if it is %NULL-terminated.
  *
  * Create a #GList from the string in @strv and copy the strings.
  * 
@@ -77,6 +76,47 @@ GList*
 gx_strv_to_list_copy (gchar **strv, gssize n)
 {
   return strv_to_list (strv, n, TRUE/*copy*/);
+}
+
+
+
+/**
+ * gx_utf8_flatten:
+ * @str: a UTF-8 string
+ * @len: the length of @str, or -1 if it is %NULL-terminated 
+ *
+ * Flatten some UTF-8 string; that is, downcase it and remove any diacritics.
+ *
+ * Returns: (transfer full): a flattened string, free with g_free().
+ */
+gchar*
+gx_utf8_flatten (const gchar *str, gssize len)
+{
+  GString *gstr;
+  char    *norm, *cur;
+
+  g_return_val_if_fail (str, NULL);
+  
+  norm = g_utf8_normalize (str, len, G_NORMALIZE_ALL);
+  if (!norm)
+    return NULL;
+
+  gstr = g_string_sized_new (strlen (norm));
+  
+  for (cur = norm; cur && *cur; cur = g_utf8_next_char (cur))
+    {
+      gunichar gc;
+
+      gc = g_utf8_get_char (cur);
+      if (g_unichar_combining_class (gc) != 0)
+        continue;
+        
+      g_string_append_unichar (gstr, g_unichar_tolower(gc));
+    }
+
+  g_free (norm);
+  
+  return g_string_free (gstr, FALSE);
 }
 
 
