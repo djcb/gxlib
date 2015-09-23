@@ -17,6 +17,10 @@
 include $(top_srcdir)/gtest.mk
 SUBDIRS=. tests
 
+AM_CFLAGS=					\
+	$(WARN_CFLAGS)				\
+	-Wno-switch-enum
+
 AM_CPPFLAGS=					\
 	-I$(top_srcdir)				\
 	$(GLIB_CFLAGS)				\
