@@ -708,7 +708,7 @@ process_dentry (GXDirWatcher *self, const char *path,
 	case DT_REG:
 		if (matched_path (self, fullpath)) /* only interesting files */
 			g_signal_emit (self, SIGS[SIG_UPDATE], 0,
-				       G_FILE_MONITOR_EVENT_CHANGED,
+				       G_FILE_MONITOR_EVENT_CREATED,
 				       G_FILE_TYPE_REGULAR, fullpath);
 		break;
 	case DT_DIR:

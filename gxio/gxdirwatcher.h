@@ -28,7 +28,7 @@
  * @title: Directory scanner and watcher
  * @short_description: scan a number of directories and watch them for changes
  * 
- * A scanner/watcher for directories.
+ * An asychronous file system scanner/watcher.
  *
  * NOTE: #GXDirWatcher is experimental and its API and semantics are unstable.
  */
@@ -48,6 +48,7 @@ G_BEGIN_DECLS
                                      GX_TYPE_DIR_WATCHER))
 #define GX_DIR_WATCHER_GET_CLASS(self)  (G_TYPE_INSTANCE_GET_CLASS ((self),  \
                                      GX_TYPE_DIR_WATCHER,GXDirWatcherClass))
+
 typedef struct _GXDirWatcher GXDirWatcher;
 typedef struct _GXDirWatcherClass GXDirWatcherClass;
 typedef struct _GXDirWatcherPrivate GXDirWatcherPrivate;
@@ -86,8 +87,7 @@ struct _GXDirWatcherClass {
  * 
  * Returns: the #GType
  */
-GType gx_dir_watcher_get_type (void);
-
+GType gx_dir_watcher_get_type (void) G_GNUC_CONST;
 
 
 /**
@@ -116,9 +116,11 @@ typedef enum {
  * @flags: #GXDirWatcherFlags flags that influence the behavior
  * @err: (allow-none): receives error information
  *
- * Create a new #GXDirWatcher instance. Use gx_dir_watcher_scan() to scan
- * directories, and set up file-change monitors which then give change
- * notifications through the #GXDirWatcher::update signal.
+ * Create a new #GXDirWatcher instance.
+ *
+ * Use gx_dir_watcher_scan() to scan directories, and set up file-change
+ * monitors which then give change notifications through the
+ * #GXDirWatcher::update signal.
  *
  * Returns: (transfer full): a new #GXDirWatcher instance or %NULL
  * in case of error. Free with g_object_unref ().
@@ -138,7 +140,13 @@ GXDirWatcher *gx_dir_watcher_new (const char *const *dirs,
  *
  * Asynchronously run a file-system scan over the directories set with
  * gx_dir_watcher_new(). For each file and directroy found, an
- * #GXDirWatcher::update signal is emitted, with @G_FILE_MONITOR_EVENT_CHANGED.
+ * #GXDirWatcher::update signal is emitted, with @G_FILE_MONITOR_EVENT_CREATED
+ * (since it is create from the scanner's point of view).
+ *
+ * If @self was created with @GX_DIR_WATCHER_FLAG_MONITOR (in
+ * gx_dir_watcher_new()), later changes would e.g. trigger
+ * @GX_FILE_MONITOR_EVENT_CHANGED.
+ *
  * Use gx_dir_watcher_scan_finish() to get the result.
  *
  * Note that signals may be emitted from a different thread during the scan.
