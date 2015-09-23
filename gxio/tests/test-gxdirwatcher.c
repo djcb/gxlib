@@ -70,7 +70,7 @@ on_update (GXDirWatcher *watcher, GFileMonitorEvent event,
 	g_assert (GX_IS_DIR_WATCHER (watcher));
 	g_assert (path);
 
-	if (event != G_FILE_MONITOR_EVENT_CHANGED)
+	if (event != G_FILE_MONITOR_EVENT_CREATED)
 		return;
 	if (ftype != G_FILE_TYPE_REGULAR)
 		return;
