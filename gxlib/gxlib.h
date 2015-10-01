@@ -24,6 +24,7 @@
 
 #include <gxlib/gxstr.h>
 #include <gxlib/gxfunc.h>
+#include <gxlib/gxoption.h>
 #include <gxlib/gxpath.h>
 #include <gxlib/gxpred.h>
 #include <gxlib/gxlist.h>

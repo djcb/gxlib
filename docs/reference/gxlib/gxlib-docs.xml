@@ -22,7 +22,7 @@
   </bookinfo>
 
   <chapter>
-    <title>Lists</title>
+    <title>Data structures</title>
     <xi:include href="xml/gxlist.xml"/>
     </chapter>
 
@@ -37,11 +37,15 @@
         <xi:include href="xml/gxstr.xml"/>
   </chapter>
 
-    <chapter>
+  <chapter>
     <title>Paths</title>
         <xi:include href="xml/gxpath.xml"/>
   </chapter>
 
+    <chapter>
+    <title>Command-line parsing</title>
+        <xi:include href="xml/gxoption.xml"/>
+  </chapter>
   
   <chapter id="object-tree">
     <title>Object Hierarchy</title>
