@@ -31,8 +31,8 @@ GList *gx_list_filter (GList *list, GXPred pred_func, gpointer user_data)
 gboolean gx_list_every (GList *list, GXPred pred_func, gpointer user_data);
 gboolean gx_list_any (GList *list, GXPred pred_func, gpointer user_data);
 
-GList *gx_list_filter_in_place (GList *list, GXPred pred_func, gpointer user_data,
-                                GDestroyNotify free_func)
+GList *gx_list_filter_in_place (GList *list, GXPred pred_func,
+                                gpointer user_data, GDestroyNotify free_func)
   G_GNUC_WARN_UNUSED_RESULT;
 
 GList *gx_list_take (GList *list, gsize n)
@@ -49,11 +49,11 @@ GList *gx_list_skip_in_place (GList *list, gsize n, GDestroyNotify free_func)
 GList *gx_list_map (GList *list, GXBinaryFunc map_func, gpointer user_data)
   G_GNUC_WARN_UNUSED_RESULT;
 
-GList *gx_list_map_in_place (GList *list, GXBinaryFunc map_func, gpointer user_data,
-                             GDestroyNotify free_func);
+GList *gx_list_map_in_place (GList *list, GXBinaryFunc map_func,
+                             gpointer user_data, GDestroyNotify free_func);
 
-gpointer gx_list_fold (GList *list, GXTernaryFunc fold_func, gpointer init, gpointer user_data,
-                       GDestroyNotify free_func)
+gpointer gx_list_fold (GList *list, GXTernaryFunc fold_func, gpointer init,
+                       gpointer user_data, GDestroyNotify free_func)
   G_GNUC_WARN_UNUSED_RESULT;
 
 GList *gx_list_iota (gsize count, gint start, gsize step)
