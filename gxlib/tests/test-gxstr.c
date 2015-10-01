@@ -83,6 +83,7 @@ static void
 test_utf8_flatten (void)
 {
   guint u;
+  char  buf[2];
   struct
   {
     const char *str;
@@ -110,7 +111,13 @@ test_utf8_flatten (void)
       g_assert_cmpstr (cases[u].flat, ==, flat);
       g_free (flat);
     }
+
+  buf[0]=0xff;
+  buf[1]=0x00;
+  g_assert (!gx_utf8_flatten (buf, 1));
 }
+
+
 
 int
 main (int argc, char *argv[])
