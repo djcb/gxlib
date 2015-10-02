@@ -25,9 +25,88 @@
  * @title: Command-line parsing
  * @short_description: parsing command-line parameters
  *
- * A wrapper for #GOptionContext to support "sub-commands", that is,
- * command-line tools that offer a number of commands, each with their specific
- * options -- examples include "git", "openssl", "mu".
+ * #GXSubCommandOptionContext is a wrapper for #GOptionContext to support
+ * "sub-commands", that is, command-line tools that offer a number of commands,
+ * each with their specific options -- examples include "git", "openssl", "mu".
+ *
+ * In the example below, we define a program with two sub-commands, "add" and
+ * "remove", each with their specific options. 
+ *
+ * |[<!-- language="C" -->
+ * static gboolean verbose;
+ * static gboolean beep;
+ * static gint     count;
+ *  
+ * static GOptionEntry main_entries[] =
+ *   {
+ *     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Be verbose", NULL },
+ *     { NULL }
+ *   };
+ *  
+ * static GOptionEntry add_entries[] =
+ *   {
+ *     { "beep", 'b', 0, G_OPTION_ARG_NONE, &beep, "Beep after adding", NULL },
+ *     { NULL }
+ *   };
+ *  
+ * static GOptionEntry remove_entries[] =
+ *   {
+ *     { "count", 'c', 0, G_OPTION_ARG_INT, &count, "Number of items to remove", "N" },
+ *     { NULL }
+ *   };
+ *  
+ *  
+ * static gboolean
+ * handle_add (gpointer data, GError **err)
+ * {
+ *   // implement the 'add' subcommand
+ *   return TRUE;
+ * }
+ *  
+ * static gboolean
+ * handle_remove (gpointer data, GError **err)
+ * {
+ *   // implement the 'remove' subcommand
+ *   return TRUE;
+ * }
+ *  
+ *  
+ * int
+ * main (int argc, char *argv[])
+ * {
+ *   gboolean                   rv;
+ *   GOptionContext            *o_ctx;
+ *   GXSubCommandOptionContext *sc_ctx;
+ *   GOptionGroup              *og;
+ *   GError                    *err;
+ *  
+ *   o_ctx = g_option_context_new ("- add or remove items");
+ *   g_option_context_add_main_entries (o_ctx, main_entries, "items");
+ *  
+ *   sc_ctx = gx_sub_command_option_context_new (o_ctx);
+ *   
+ *   og = g_option_group_new ("add", "the add subcommand", "add", NULL, NULL);
+ *   g_option_group_add_entries (og, add_entries);
+ *   gx_sub_command_option_context_add_group (sc_ctx, "add", og,
+ *                                            (GXSubCommandFunc)handle_add, NULL);
+ *  
+ *   og = g_option_group_new ("remove", "the remove subcommand", "remove", NULL, NULL);
+ *   g_option_group_add_entries (og, remove_entries);
+ *   gx_sub_command_option_context_add_group (sc_ctx, "remove", og,
+ *                                            (GXSubCommandFunc)handle_remove, NULL);
+ *   err = NULL;
+ *   rv = gx_sub_command_option_context_process (sc_ctx, &argc, &argv, &err);
+ *   if (!rv)
+ *     {
+ *       g_printerr ("error: %s", err ? err->message : "something went wrong");
+ *     }
+ *  
+ *   g_clear_error (&err);
+ *   gx_sub_command_option_context_free (sc_ctx);
+ *  
+ *   return rv ? 0 : 1;
+ * }
+ * ]|
  */
 
 struct _GXSubCommandOptionContext
@@ -133,7 +212,7 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
 
 
 /**
- * gx_sub_command_option_context_parse:
+ * gx_sub_command_option_context_process:
  * @context: a #GXSubCommandOptionContext instance
  * @argc: (inout) (allow-none): a pointer to the number of command-line arguments
  * @argv: (inout) (allow-none) (array length=argc): a pointer to the array of
@@ -141,13 +220,11 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
  * @err: (allow-none): receives error information
  *
  * Parses the command-line options, using the main command-line options and the
- * options for appropriate sub-command (if any).
- *
- * If a sub-command function was set with
- * gx_sub_command_option_context_add_group(), that function is invoked for the
- * given group.
+ * options for appropriate sub-command (if any). If a sub-command function was
+ * set with gx_sub_command_option_context_add_group(), that function is invoked
+ * for the given group.
  * 
- * See @g_option_context_parse for some more details.
+ * See @g_option_context_parse for some more details about the parsing.
  *
  * Return value: If a sub-command was recognized and it defined a
  * #GSubCommandFunc, returns the result of the invocation. Otherwise, returns
@@ -155,9 +232,9 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
  * 
  */
 gboolean
-gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
-                                     gint *argc, gchar ***argv,
-                                     GError **error)
+gx_sub_command_option_context_process (GXSubCommandOptionContext *context,
+                                       gint *argc, gchar ***argv,
+                                       GError **error)
 {
   gint      i;
   gboolean  rv;
