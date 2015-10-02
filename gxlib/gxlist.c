@@ -46,7 +46,7 @@
  * // filter out the non-primes
  * nums = gx_list_filter_in_place (nums, (GXPred)gx_is_prime, NULL, NULL);
  * // take the sum
- * sum = g_list_sum (num);
+ * sum = gx_list_sum (num);
  * 
  * g_assert_cmpint (sum, ==, 1060);
  * g_list_free (nums);
