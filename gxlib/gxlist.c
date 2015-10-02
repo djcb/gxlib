@@ -22,18 +22,15 @@
 /**
  * SECTION:gxlist
  * @title: Functional GLists
- * @short_description: using GLib's #GList with a functional flavor
+ * @short_description: using #GList with a functional flavor
  *
- * A #GList is a double-linked list data structure for storing arbitrary data.
- * 
- * GXLib offers a number of functions for #GList that allow for list
- * manipulation with a functional flavor.
- *
- * The functions are inspired by the list operations in <ulink
- * url="https://www.rust-lang.org/">Mozilla's Rust</ulink>, <ulink
- * url="http://srfi.schemers.org/srfi-1/srfi-1.html">Scheme's SRFI-1</ulink> and
- * their use for problems such as those from <ulink
- * uri="https://projecteuler.net/">Project Euler</ulink>.
+ * A #GList is a double-linked list data structure for storing arbitrary
+ * data. GXLib offers a number of functions for #GList that allow for list
+ * manipulation with a functional flavor. The functions are inspired by the list
+ * operations in <ulink url="https://www.rust-lang.org/">Mozilla's Rust</ulink>,
+ * <ulink url="http://srfi.schemers.org/srfi-1/srfi-1.html">Scheme's
+ * SRFI-1</ulink> and their use for problems such as those from
+ * <ulink url="https://projecteuler.net/">Project Euler</ulink>.
  *
  * Suppose we want to find the sum of the prime numbers up to 100. We can use a
  * combination of gx_list_iota(), gx_list_filter_in_place(), gx_is_prime() and
@@ -113,6 +110,15 @@ gx_list_filter (GList *list, GXPred pred_func, gpointer user_data)
  * Check if the predicate is true for every element in @list. If @list is empty,
  * this is considered %TRUE.
  *
+ * Example: let's verify that not every number in [1..10] is a prime number:
+ * |[<!-- language="C" -->
+ * GList *lst;
+ * 
+ * lst =  gx_list_iota (10, 1, 1);
+ * g_assert_false (gx_list_every (lst, (GXPred)gx_is_prime, NULL));
+ *
+ * g_list_free (lst);
+ * ]|
  * Returns: %TRUE if #pred_func returns %TRUE for every element in @list; %FALSE
  * otherwise.
  */
@@ -138,6 +144,16 @@ gx_list_every (GList *list, GXPred pred_func, gpointer user_data)
  * 
  * Check if the predicate is true for any element in @list. If @list is empty,
  * this is considered %FALSE.
+ *
+ * Example: let's see if there are any prime-numbers between 20 and 30: 
+ * |[<!-- language="C" -->
+ * GList *lst;
+ *
+ * lst =  gx_list_iota (10, 20, 1);
+ * g_assert_true (gx_list_any (lst, (GXPred)gx_is_prime, NULL));
+ *
+ * g_list_free (lst);
+ * ]|
  *
  * Returns: %TRUE if #pred_func returns %TRUE for at least one element in @list;
  * %FALSE otherwise.
@@ -168,11 +184,10 @@ gx_list_any (GList *list, GXPred pred_func, gpointer user_data)
  * removed elements are freed with @free_func.
  *
  * Note, for the inverse operation (removing all items for with a predicate
- * function returns %FALSE), see g_list_remove_all().
+ * function returns %TRUE), see g_list_remove_all().
  *
  * |[<!-- language="C" -->
- *
-
+ * // Example
  * ]|
  *
  * Returns: the filtered list, consisting of the remaining elements of
@@ -280,9 +295,8 @@ gx_list_free_full (GList *lst, GDestroyNotify free_func)
  * @list to its first @n elements, or all elements if @n is greater than the
  * length of @list.
  * 
- *
  * |[<!-- language="C" -->
- *
+ * // Example
  * ]|
  *
  * Returns:(transfer full): the list reduced to up to @n elements.
@@ -323,6 +337,7 @@ gx_list_take_in_place (GList *list, gsize n, GDestroyNotify free_func)
  * which the elements were taken and the resulting list, share the data items.
  *
  * |[<!-- language="C" -->
+ * // Example
  * ]|
  *
  * Returns:(transfer full): a new list with up to n elements; free with
@@ -349,6 +364,7 @@ gx_list_skip (GList *list, gsize n)
  * @list, return the empty list.
  *
  * |[<!-- language="C" -->
+ * // Example
  * ]|
  *
  * Returns:(transfer full): a list with up to n elements; free with
@@ -383,7 +399,7 @@ gx_list_skip_in_place (GList *list, gsize n, GDestroyNotify free_func)
  *
  * |[<!-- language="C" -->
  * GList *lst, *upper;
- * const char* cities[] = { "Amsterdam", "San Francisco", "Helsinki", NULL };
+ * const char* cities[] = { "Aruba", "Hawaii", "Zanzibar", NULL };
  * 
  * lst = gx_strv_to_list (cities, -1);
  * upper = gx_list_map (lst, (GXBinaryFunc)g_ascii_strup, GINT_TO_POINTER(-1));
@@ -479,13 +495,12 @@ gx_list_map_in_place (GList *list, GXBinaryFunc map_func, gpointer user_data,
  * const char* cities[] = { "Amsterdam", "San Francisco", "Helsinki", NULL };
  * 
  * lst = gx_strv_to_list ((gchar**)cities, -1);
- * str = gx_list_fold (lst, (GXTernaryFunc)chain, NULL, ", ", g_free);
+ * str = gx_list_fold (lst, (GXTernaryFunc)chain, NULL, "; ", g_free);
  * 
- * g_assert_cmpstr (str, ==, "Amsterdam, San Francisco, Helsinki");
+ * g_assert_cmpstr (str, ==, "Amsterdam; San Francisco; Helsinki");
  * 
  * g_free (str);
  * g_list_free (lst);
- * 
  * ]|
  * Returns: (transfer full): the computed value.
  */

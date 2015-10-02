@@ -105,21 +105,42 @@ static void
 example_map (void)
 {
   GList *lst, *upper;
-  const char* cities[] = { "Amsterdam", "San Francisco", "Helsinki", NULL };
+  const char* cities[] = { "Aruba", "Hawaii", "Zanzibar", NULL };
   
   lst = gx_strv_to_list ((gchar**)cities, -1);
   upper = gx_list_map (lst, (GXBinaryFunc)g_ascii_strup, GINT_TO_POINTER(-1));
 
   g_assert_cmpint (g_list_length(upper),==,3);
 
-  g_assert_cmpstr (g_list_nth_data(upper, 0),==,"AMSTERDAM");
-  g_assert_cmpstr (g_list_nth_data(upper, 1),==,"SAN FRANCISCO");
-  g_assert_cmpstr (g_list_nth_data(upper, 2),==,"HELSINKI");
+  g_assert_cmpstr (g_list_nth_data(upper, 0), ==, "ARUBA");
+  g_assert_cmpstr (g_list_nth_data(upper, 1), ==, "HAWAII");
+  g_assert_cmpstr (g_list_nth_data(upper, 2), ==, "ZANZIBAR");
   
   g_list_free (lst);
   g_list_free_full (upper, g_free);
 }
 
+
+
+static void
+example_every (void)
+{
+  GList *lst;
+  lst =  gx_list_iota (10, 1, 1);
+  g_assert_false (gx_list_every (lst, (GXPred)gx_is_prime, NULL));
+  g_list_free (lst);
+}
+
+
+
+static void
+example_any (void)
+{
+  GList *lst;
+  lst =  gx_list_iota (10, 20, 1);
+  g_assert_true (gx_list_any (lst, (GXPred)gx_is_prime, NULL));
+  g_list_free (lst);
+}
 
 
 static void
@@ -276,13 +297,100 @@ example_chain (void)
   
   lst = gx_strv_to_list ((gchar**)cities, -1);
   str = gx_list_fold (lst, (GXTernaryFunc)chain, NULL,
-                      (gpointer)", ", g_free);
+                      (gpointer)"; ", g_free);
 
-  g_assert_cmpstr (str, ==, "Amsterdam, San Francisco, Helsinki");
+  g_assert_cmpstr (str, ==, "Amsterdam; San Francisco; Helsinki");
 
   g_free (str);
   g_list_free (lst);
 }
+
+
+static gboolean verbose;
+static gboolean beep;
+static gint     count;
+
+static GOptionEntry main_entries[] =
+  {
+    { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "Be verbose", NULL },
+    { NULL }
+  };
+
+static GOptionEntry add_entries[] =
+  {
+    { "beep", 'b', 0, G_OPTION_ARG_NONE, &beep, "Beep after adding", NULL },
+    { NULL }
+  };
+
+static GOptionEntry remove_entries[] =
+  {
+    { "count", 'c', 0, G_OPTION_ARG_INT, &count, "Number of items to remove", "N" },
+    { NULL }
+  };
+
+
+static gboolean
+handle_add (gpointer data, GError **err)
+{
+  // implement the 'add' subcommand
+  return TRUE;
+}
+
+static gboolean
+handle_remove (gpointer data, GError **err)
+{
+  // implement the 'remove' subcommand
+  return TRUE;
+}
+
+
+static int
+test_main (int argc, char *argv[])
+{
+  gboolean                   rv;
+  GOptionContext            *o_ctx;
+  GXSubCommandOptionContext *sc_ctx;
+  GOptionGroup              *og;
+  GError                    *err;
+
+  o_ctx = g_option_context_new ("- add or remove items");
+  g_option_context_add_main_entries (o_ctx, main_entries, "items");
+
+  sc_ctx = gx_sub_command_option_context_new (o_ctx);
+  
+  og = g_option_group_new ("add", "the add subcommand", "add", NULL, NULL);
+  g_option_group_add_entries (og, add_entries);
+  gx_sub_command_option_context_add_group (sc_ctx, "add", og,
+                                           (GXSubCommandFunc)handle_add, NULL);
+
+  og = g_option_group_new ("remove", "the remove subcommand", "remove", NULL, NULL);
+  g_option_group_add_entries (og, remove_entries);
+  gx_sub_command_option_context_add_group (sc_ctx, "remove", og,
+                                           (GXSubCommandFunc)handle_remove, NULL);
+  err = NULL;
+  rv = gx_sub_command_option_context_process (sc_ctx, &argc, &argv, &err);
+  if (!rv)
+    {
+      g_printerr ("error: %s", err ? err->message : "something went wrong");
+    }
+
+  g_clear_error (&err);
+  gx_sub_command_option_context_free (sc_ctx);
+
+  return rv ? 0 : 1;
+}
+
+
+static void
+example_sub_command (void)
+{
+  const char *argv[] = {"items", "--verbose", "add", "--beep"};
+  int         argc = G_N_ELEMENTS(argv);
+
+  
+  g_assert_cmpint (test_main (argc, (char**)argv), ==, 0);
+}
+
 
 
 int
@@ -296,6 +404,8 @@ main (int argc, char *argv[])
   g_test_add_func ("/example/filter", example_filter);
   g_test_add_func ("/example/take", example_take);
   g_test_add_func ("/example/map", example_map);
+  g_test_add_func ("/example/every", example_every);
+  g_test_add_func ("/example/any", example_any);
   g_test_add_func ("/example/iota", example_iota);
   g_test_add_func ("/example/plus", example_plus);
   g_test_add_func ("/example/pred", example_pred);
@@ -304,6 +414,7 @@ main (int argc, char *argv[])
   g_test_add_func ("/example/primes-prod-20", example_primes_prod_20);
   g_test_add_func ("/example/upper-chain", example_upper_chain);
   g_test_add_func ("/example/chain", example_chain);
+  g_test_add_func ("/example/sub-command", example_sub_command);
  
   return g_test_run ();
 }
