@@ -29,8 +29,8 @@
  * manipulation with a functional flavor. The functions are inspired by the list
  * operations in <ulink url="https://www.rust-lang.org/">Mozilla's Rust</ulink>,
  * <ulink url="http://srfi.schemers.org/srfi-1/srfi-1.html">Scheme's
- * SRFI-1</ulink> and their use for problems such as those from
- * <ulink url="https://projecteuler.net/">Project Euler</ulink>.
+ * SRFI-1</ulink> and their use for problems such as those from <ulink
+ * url="https://projecteuler.net/">Project Euler</ulink>.
  *
  * Suppose we want to find the sum of the prime numbers up to 100. We can use a
  * combination of gx_list_iota(), gx_list_filter_in_place(), gx_is_prime() and
@@ -404,7 +404,7 @@ gx_list_skip_in_place (GList *list, gsize n, GDestroyNotify free_func)
  * lst = gx_strv_to_list (cities, -1);
  * upper = gx_list_map (lst, (GXBinaryFunc)g_ascii_strup, GINT_TO_POINTER(-1));
  *
- * // upper contains AMSTERDAM, SAN FRANCISCO, HELSINKI
+ * // upper contains ARUBA, HAWAII, ZANZIBAR
  * 
  * g_list_free (lst);
  * g_list_free_full (upper, g_free);
@@ -477,7 +477,7 @@ gx_list_map_in_place (GList *list, GXBinaryFunc map_func, gpointer user_data,
  * gx_list_fold() is useful when computing a value from the elements in a list.
  * 
  * For example, we can use gx_list_fold() to turn a list of strings into a
- * single string, wit the elements separated by ", ". This is similar to what
+ * single string, with the elements separated by "; ". This is similar to what
  * g_build_path() does, but uses lists:
  * 
  * |[<!-- language="C" -->

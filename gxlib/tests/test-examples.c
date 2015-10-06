@@ -19,7 +19,7 @@
 
 #include <gxlib/gxlib.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 static void
 example_funcs (void)
@@ -391,6 +391,26 @@ example_sub_command (void)
   g_assert_cmpint (test_main (argc, (char**)argv), ==, 0);
 }
 
+static void
+example_map_fold (void)
+{
+  GList *nums;
+  int    greatest;
+
+  /* turn into a list,  shallow copy */
+  const char *numstrv[] = { "3", "48", "22", "73", "55" };
+  nums = gx_strv_to_list ((char**)numstrv, G_N_ELEMENTS(numstrv)); 
+
+  /* change the list of strings, in-place, in to a list of numbers */
+  gx_list_map_in_place (nums, (GXBinaryFunc)atoi, NULL, NULL);
+
+  greatest = GPOINTER_TO_INT(gx_list_fold (nums, (GXTernaryFunc)gx_max,
+                                           GINT_TO_POINTER(0), NULL, NULL));
+  g_assert_cmpint (greatest,==,73);
+  
+  g_list_free (nums);
+}
+
 
 
 int
@@ -415,6 +435,7 @@ main (int argc, char *argv[])
   g_test_add_func ("/example/upper-chain", example_upper_chain);
   g_test_add_func ("/example/chain", example_chain);
   g_test_add_func ("/example/sub-command", example_sub_command);
+  g_test_add_func ("/example/map-fold", example_map_fold);
  
   return g_test_run ();
 }
