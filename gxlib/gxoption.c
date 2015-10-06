@@ -217,14 +217,14 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
  * @argc: (inout) (allow-none): a pointer to the number of command-line arguments
  * @argv: (inout) (allow-none) (array length=argc): a pointer to the array of
  * command-line arguments
- * @err: (allow-none): receives error information
+ * @error: (allow-none): receives error information
  *
  * Parses the command-line options, using the main command-line options and the
  * options for appropriate sub-command (if any). If a sub-command function was
  * set with gx_sub_command_option_context_add_group(), that function is invoked
  * for the given group.
  * 
- * See @g_option_context_parse for some more details about the parsing.
+ * See g_option_context_parse() for some more details about the parsing.
  *
  * Return value: If a sub-command was recognized and it defined a
  * #GSubCommandFunc, returns the result of the invocation. Otherwise, returns
@@ -233,8 +233,7 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
  */
 gboolean
 gx_sub_command_option_context_process (GXSubCommandOptionContext *context,
-                                       gint *argc, gchar ***argv,
-                                       GError **error)
+                                       gint *argc, gchar ***argv, GError **error)
 {
   gint      i;
   gboolean  rv;

@@ -39,7 +39,7 @@ struct _GXSubCommandOptionContext;
 typedef struct _GXSubCommandOptionContext GXSubCommandOptionContext;
 
 GXSubCommandOptionContext*
-gx_sub_command_option_context_new (GOptionContext *option_context)
+gx_sub_command_option_context_new (GOptionContext *context)
 G_GNUC_WARN_UNUSED_RESULT;
 
 void gx_sub_command_option_context_free (GXSubCommandOptionContext *context);

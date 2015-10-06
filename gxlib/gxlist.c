@@ -29,14 +29,17 @@
  * manipulation with a functional flavor. The functions are inspired by the list
  * operations in <ulink url="https://www.rust-lang.org/">Mozilla's Rust</ulink>,
  * <ulink url="http://srfi.schemers.org/srfi-1/srfi-1.html">Scheme's
- * SRFI-1</ulink> and their use for problems such as those from <ulink
- * url="https://projecteuler.net/">Project Euler</ulink>.
+ * SRFI-1</ulink> and their use for problems such as those from
+ *  <ulink url="https://projecteuler.net/">Project Euler</ulink>.
  *
  * Suppose we want to find the sum of the prime numbers up to 100. We can use a
  * combination of gx_list_iota(), gx_list_filter_in_place(), gx_is_prime() and
  * gx_list_sum() to accomplish this. You could use a one-liner for this, but
  * let's do it in steps:
  *
+ *
+ *    
+ * 
  * |[<!-- language="C" -->
  * gint sum;
  * GList *nums;
