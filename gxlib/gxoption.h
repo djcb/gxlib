@@ -61,9 +61,10 @@ void gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context
                                               GOptionGroup *option_group,
                                               GXSubCommandFunc func,
                                               gpointer user_data);
-
-gboolean gx_sub_command_option_context_process (GXSubCommandOptionContext *context,
+gboolean gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
                                                 gint *argc, gchar ***argv,
+                                                GError **error);
+gboolean gx_sub_command_option_context_execute (GXSubCommandOptionContext *context,
                                                 GError **error);
 G_END_DECLS
 

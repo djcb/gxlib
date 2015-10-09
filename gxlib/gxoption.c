@@ -109,17 +109,20 @@
  * ]|
  */
 
+
 struct _GXSubCommandOptionContext
 {
-  GOptionContext *ctx;
-  GHashTable     *groups;
+  GOptionContext	*ctx;
+  GHashTable		*groups;
+  struct _OGroup	*group;
+  
 };
 
 struct _OGroup
 {
-  GOptionGroup      *option_group;
-  GXSubCommandFunc  func;
-  gpointer           user_data;
+  GOptionGroup		*option_group;
+  GXSubCommandFunc	 func;
+  gpointer		 user_data;
 };
 
 typedef struct _OGroup OGroup;
@@ -212,7 +215,7 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
 
 
 /**
- * gx_sub_command_option_context_process:
+ * gx_sub_command_option_context_parse:
  * @context: a #GXSubCommandOptionContext instance
  * @argc: (inout) (allow-none): a pointer to the number of command-line arguments
  * @argv: (inout) (allow-none) (array length=argc): a pointer to the array of
@@ -229,11 +232,10 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
  * Return value: If a sub-command was recognized and it defined a
  * #GSubCommandFunc, returns the result of the invocation. Otherwise, returns
  * %TRUE if parsing worked, %FALSE otherwise.
- * 
  */
 gboolean
-gx_sub_command_option_context_process (GXSubCommandOptionContext *context,
-                                       gint *argc, gchar ***argv, GError **error)
+gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
+				     gint *argc, gchar ***argv, GError **error)
 {
   gint      i;
   gboolean  rv;
@@ -269,11 +271,39 @@ gx_sub_command_option_context_process (GXSubCommandOptionContext *context,
     }
   
   rv = g_option_context_parse (context->ctx, argc, argv, error);
-  if (rv && ogroup && ogroup->func)
-    {
-      return ogroup->func (ogroup->user_data, error);
-    }
-  
+  if (rv)
+    context->group = ogroup;
+    
   return rv;
+}
+
+
+/**
+ * gx_sub_command_option_context_execute:
+ * @context: a #GXSubCommandOptionContext instance
+ * @argc: (inout) (allow-none): a pointer to the number of command-line arguments
+ * @argv: (inout) (allow-none) (array length=argc): a pointer to the array of
+ * command-line arguments
+ * @error: (allow-none): receives error information
+ *
+ * After a succesful gx_sub_command_option_context_parse(), if a sub-command
+ * function was set with gx_sub_command_option_context_add_group(), that
+ * function is invoked for the given group.
+ * 
+ * Return value: If a sub-command was recognized and it defined a
+ * #GSubCommandFunc, returns the result of the invocation. Otherwise, returns
+ * %TRUE.
+ */
+gboolean
+gx_sub_command_option_context_execute (GXSubCommandOptionContext *context, GError **error)
+{
+  g_return_val_if_fail (context, FALSE);
+
+  if (context->group && context->group->func)
+    {
+      return context->group->func (context->group->user_data, error);
+    }
+
+  return TRUE;
 }
 

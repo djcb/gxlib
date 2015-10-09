@@ -368,12 +368,18 @@ test_main (int argc, char *argv[])
   gx_sub_command_option_context_add_group (sc_ctx, "remove", og,
                                            (GXSubCommandFunc)handle_remove, NULL);
   err = NULL;
-  rv = gx_sub_command_option_context_process (sc_ctx, &argc, &argv, &err);
+  rv = gx_sub_command_option_context_parse (sc_ctx, &argc, &argv, &err);
   if (!rv)
     {
       g_printerr ("error: %s", err ? err->message : "something went wrong");
     }
 
+  rv = gx_sub_command_option_context_execute (sc_ctx, &err);
+  if (!rv)
+    {
+      g_printerr ("error: %s", err ? err->message : "something went wrong");
+    }
+  
   g_clear_error (&err);
   gx_sub_command_option_context_free (sc_ctx);
 
