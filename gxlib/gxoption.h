@@ -46,14 +46,17 @@ void gx_sub_command_option_context_free (GXSubCommandOptionContext *context);
 
 /**
  * GXSubCommandFunc:
- * @user_data: user-data passed to funciton
+ * @rest: %NULL-terminated array with rest arguments
+ * @user_data: user-data passed to function
  * @err: (allow-none): receives error information
  *
  * Prototype for a callback function for a #GXSubCommandOptionContext group
  *
  * Returns: %TRUE if the function succeeded, %FALSE otherwise.
  */
-typedef gboolean (*GXSubCommandFunc) (gpointer user_data, GError **err);
+typedef gboolean (*GXSubCommandFunc) (const char **rest,
+                                      gpointer user_data,
+                                      GError **err);
 
 
 void gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
@@ -64,6 +67,9 @@ void gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context
 gboolean gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
                                                 gint *argc, gchar ***argv,
                                                 GError **error);
+
+GOptionGroup *gx_sub_command_option_context_get_group (GXSubCommandOptionContext *context);
+
 gboolean gx_sub_command_option_context_execute (GXSubCommandOptionContext *context,
                                                 GError **error);
 G_END_DECLS

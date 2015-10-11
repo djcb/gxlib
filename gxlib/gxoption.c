@@ -57,14 +57,14 @@
  *  
  *  
  * static gboolean
- * handle_add (gpointer data, GError **err)
+ * handle_add (const char **rest, gpointer data, GError **err)
  * {
  *   // implement the 'add' subcommand
  *   return TRUE;
  * }
  *  
  * static gboolean
- * handle_remove (gpointer data, GError **err)
+ * handle_remove (const char **rest, gpointer data, GError **err)
  * {
  *   // implement the 'remove' subcommand
  *   return TRUE;
@@ -112,17 +112,18 @@
 
 struct _GXSubCommandOptionContext
 {
-  GOptionContext	*ctx;
-  GHashTable		*groups;
-  struct _OGroup	*group;
-  
+  GOptionContext *ctx;
+  GList          *groups;
+  struct _OGroup *group;
 };
 
 struct _OGroup
 {
-  GOptionGroup		*option_group;
-  GXSubCommandFunc	 func;
-  gpointer		 user_data;
+  char              *name;
+  GOptionGroup	    *option_group;
+  GXSubCommandFunc   func;
+  gpointer	     user_data;
+  char             **rest;
 };
 
 typedef struct _OGroup OGroup;
@@ -130,7 +131,9 @@ typedef struct _OGroup OGroup;
 static void
 ogroup_free (OGroup *ogroup)
 {
+  g_free (ogroup->name);
   g_option_group_unref (ogroup->option_group);
+  g_strfreev (ogroup->rest);
   g_free (ogroup);
 }
 
@@ -155,10 +158,6 @@ gx_sub_command_option_context_new (GOptionContext *context)
   mctx      = g_new0 (GXSubCommandOptionContext, 1);
   mctx->ctx = context;
   
-  /* g_option_group_unref only arrived in GLib 2.44 */
-  mctx->groups = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                        g_free,
-                                        (GDestroyNotify)ogroup_free);  
   return mctx;
 }
 
@@ -175,7 +174,7 @@ gx_sub_command_option_context_free (GXSubCommandOptionContext *context)
   g_return_if_fail (context);
 
   g_option_context_free (context->ctx);
-  g_hash_table_unref (context->groups);
+  g_list_free_full (context->groups, (GDestroyNotify)ogroup_free);
   g_free (context);
 }
 
@@ -206,11 +205,29 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
   g_return_if_fail (option_group);
 
   ogroup               = g_new0 (OGroup, 1);
+  ogroup->name         = g_strdup (group_name);
   ogroup->option_group = option_group;
   ogroup->func         = func;
   ogroup->user_data    = user_data;
-  
-  g_hash_table_insert (context->groups, g_strdup (group_name), ogroup);
+
+  context->groups = g_list_append (context->groups, ogroup);
+}
+
+
+static OGroup*
+find_ogroup (GList *groups, const char *name)
+{
+  GList *cur;
+  for (cur = groups; cur; cur = g_list_next(cur))
+    {
+      OGroup *ogroup;
+      ogroup = (OGroup*)cur->data;
+
+      if (g_strcmp0 (ogroup->name, name) == 0)
+        return ogroup;
+    }
+
+  return NULL;
 }
 
 
@@ -252,7 +269,7 @@ gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
         {
           int j;
           
-          ogroup = g_hash_table_lookup (context->groups, (*argv)[i]);
+          ogroup = find_ogroup (context->groups, (*argv)[i]);
           if (!ogroup)
             {
               g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
@@ -272,9 +289,32 @@ gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
   
   rv = g_option_context_parse (context->ctx, argc, argv, error);
   if (rv)
-    context->group = ogroup;
-    
+    {
+      ogroup->rest = g_new0 (gchar*, (*argc) + 1);
+      for (i = 0; i != *argc; ++i)
+        ogroup->rest[i] = g_strdup ((*argv)[i]);
+      
+      context->group = ogroup;
+    }
   return rv;
+}
+
+
+/**
+ * gx_sub_command_option_context_get_group:
+ * @context: a #GXSubCommandOptionContext instance
+ *
+ *  After a succesful gx_sub_command_context_parse(), return the #GOptionGroup
+ *  for the sub-command, or %NULL if there is none.
+ *
+ *  Return value:(transfer none): the #GOptionGroup or %NULL.
+ */
+GOptionGroup*
+gx_sub_command_option_context_get_group (GXSubCommandOptionContext *context)
+{
+  g_return_val_if_fail (context, TRUE);
+
+  return context->group ? context->group->option_group : NULL;
 }
 
 
@@ -301,9 +341,14 @@ gx_sub_command_option_context_execute (GXSubCommandOptionContext *context, GErro
 
   if (context->group && context->group->func)
     {
-      return context->group->func (context->group->user_data, error);
+      return context->group->func ((const char**)context->group->rest,
+                                   context->group->user_data, error);
     }
 
   return TRUE;
 }
+
+
+
+
 

@@ -46,14 +46,14 @@ static GOptionEntry bar_entries[] =
 
 
 static gboolean
-handle_foo (gpointer data, GError **err)
+handle_foo (const char **rest, gpointer data, GError **err)
 {
   foo_called = TRUE;
   return TRUE;
 }
 
 static gboolean
-handle_bar (gpointer data, GError **err)
+handle_bar (const char **rest, gpointer data, GError **err)
 {
   g_assert_not_reached ();
   return FALSE;

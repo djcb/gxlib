@@ -330,14 +330,14 @@ static GOptionEntry remove_entries[] =
 
 
 static gboolean
-handle_add (gpointer data, GError **err)
+handle_add (const char **rest, gpointer data, GError **err)
 {
   // implement the 'add' subcommand
   return TRUE;
 }
 
 static gboolean
-handle_remove (gpointer data, GError **err)
+handle_remove (const char **rest, gpointer data, GError **err)
 {
   // implement the 'remove' subcommand
   return TRUE;
