@@ -79,13 +79,13 @@ test_sub_command (void)
   
   og = g_option_group_new ("foo", "the foo subcommand", "help", NULL, NULL);
   g_option_group_add_entries (og, foo_entries);
-  gx_sub_command_option_context_add_group (mctx, "foo", og,
+  gx_sub_command_option_context_add_group (mctx, "foo", NULL, NULL,  og,
                                            (GXSubCommandFunc)handle_foo,
                                            NULL);
   
   og = g_option_group_new ("bar", "the bar subcommand", "help", NULL, NULL);
   g_option_group_add_entries (og, bar_entries);
-  gx_sub_command_option_context_add_group (mctx, "bar", og,
+  gx_sub_command_option_context_add_group (mctx, "bar", NULL, NULL, og,
                                            (GXSubCommandFunc)handle_bar,
                                            NULL);
   argv = g_new (const gchar*, 5);
@@ -171,7 +171,7 @@ test_sub_command_error_2 (void)
  
   og = g_option_group_new ("bar", "the bar subcommand", "help", NULL, NULL);
   g_option_group_add_entries (og, bar_entries);
-  gx_sub_command_option_context_add_group (mctx, "bar", og,
+  gx_sub_command_option_context_add_group (mctx, "bar", NULL, NULL, og,
                                            (GXSubCommandFunc)handle_bar,
                                            NULL);
   argv = g_new (const gchar*, 5);

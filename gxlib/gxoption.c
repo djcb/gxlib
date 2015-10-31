@@ -112,18 +112,20 @@
 
 struct _GXSubCommandOptionContext
 {
-  GOptionContext *ctx;
-  GList          *groups;
-  struct _OGroup *group;
+  GOptionContext	 *ctx;
+  GQueue		 *groups;
+  struct _OGroup	 *group;
+  char			**rest;
 };
 
 struct _OGroup
 {
-  char              *name;
-  GOptionGroup	    *option_group;
-  GXSubCommandFunc   func;
-  gpointer	     user_data;
-  char             **rest;
+  char			*name;
+  char			*oneline;
+  char			*description;
+  GOptionGroup		*option_group;
+  GXSubCommandFunc	 func;
+  gpointer		 user_data;
 };
 
 typedef struct _OGroup OGroup;
@@ -132,8 +134,12 @@ static void
 ogroup_free (OGroup *ogroup)
 {
   g_free (ogroup->name);
-  g_option_group_unref (ogroup->option_group);
-  g_strfreev (ogroup->rest);
+  g_free (ogroup->description);
+  g_free (ogroup->oneline);
+
+  if (ogroup->option_group)
+    g_option_group_unref (ogroup->option_group);
+
   g_free (ogroup);
 }
 
@@ -156,7 +162,9 @@ gx_sub_command_option_context_new (GOptionContext *context)
   g_return_val_if_fail (context, NULL);
   
   mctx      = g_new0 (GXSubCommandOptionContext, 1);
-  mctx->ctx = context;
+
+  mctx->groups = g_queue_new ();
+  mctx->ctx    = context;
   
   return mctx;
 }
@@ -174,8 +182,71 @@ gx_sub_command_option_context_free (GXSubCommandOptionContext *context)
   g_return_if_fail (context);
 
   g_option_context_free (context->ctx);
-  g_list_free_full (context->groups, (GDestroyNotify)ogroup_free);
+  
+  g_queue_free_full (context->groups, (GDestroyNotify)ogroup_free);
+  g_strfreev (context->rest);
+  
   g_free (context);
+}
+
+static OGroup*
+find_ogroup (GQueue *groups, const char *name)
+{
+  GList *cur;
+  for (cur = groups->head; cur; cur = g_list_next(cur))
+    {
+      OGroup *ogroup;
+      ogroup = (OGroup*)cur->data;
+
+      if (g_strcmp0 (ogroup->name, name) == 0)
+        return ogroup;
+    }
+
+  return NULL;
+}
+
+
+static gboolean
+cmd_help (const char **rest, GXSubCommandOptionContext *context, GError **error)
+{
+  OGroup *ogroup;
+  
+  if (!rest || !rest[0])
+    {
+      g_print ("%s", _("Use help <command> to get help about <command>\n"));
+      return TRUE;
+    }
+
+  ogroup = find_ogroup (context->groups, rest[0]);
+  if (!ogroup)
+    {
+      g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
+		   _("Unknown sub-command '%s'"), rest[0]);
+      return FALSE;
+    }
+
+  g_print (_("Sub-command: %s\n"), rest[0]);
+  if (ogroup->description)
+    g_print ("%s\n", ogroup->description);
+
+  return TRUE;
+}
+
+static void
+add_help_command (GXSubCommandOptionContext *context)
+{
+  OGroup *ogroup;
+  
+  ogroup               = g_new0 (OGroup, 1);
+  ogroup->name         = g_strdup ("help");
+  ogroup->oneline      = g_strdup (_("Get help about commands"));
+  ogroup->description  = g_strdup (_("Get help about commands"));
+  ogroup->option_group = NULL;
+  ogroup->func         = (GXSubCommandFunc)cmd_help;
+  ogroup->user_data    = context;
+
+  g_queue_push_tail (context->groups, ogroup);
+  
 }
 
 /**
@@ -183,7 +254,7 @@ gx_sub_command_option_context_free (GXSubCommandOptionContext *context)
  * @context: a #GXSubCommandOptionContext
  * @sub_command: the name of the sub-command. Should be the same as the name of
  * @option_group.
- * @option_group: the #GOptionGroup for this subcommand
+ * @option_group:(allow-none): the #GOptionGroup for this subcommand or %NULL.
  * @func: (allow-none): a #GXSubCommandFunc function that handles this
  * sub-command
  * @user_data: user pointer passed to @func
@@ -194,6 +265,8 @@ gx_sub_command_option_context_free (GXSubCommandOptionContext *context)
 void
 gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
                                          const char *group_name,
+					 const char *oneline,
+					 const char *description,
                                          GOptionGroup *option_group,
                                          GXSubCommandFunc func,
                                          gpointer user_data)
@@ -202,32 +275,46 @@ gx_sub_command_option_context_add_group (GXSubCommandOptionContext *context,
   
   g_return_if_fail (context);
   g_return_if_fail (group_name);
-  g_return_if_fail (option_group);
 
+  if (context->groups->length == 0)
+    add_help_command (context);
+  
   ogroup               = g_new0 (OGroup, 1);
   ogroup->name         = g_strdup (group_name);
+  ogroup->oneline      = g_strdup (oneline);
+  ogroup->description  = g_strdup (description);
   ogroup->option_group = option_group;
   ogroup->func         = func;
   ogroup->user_data    = user_data;
-
-  context->groups = g_list_append (context->groups, ogroup);
+  
+  /* make sure "help" is always the last item */
+  g_queue_insert_before (context->groups, context->groups->tail, ogroup);
 }
 
 
-static OGroup*
-find_ogroup (GList *groups, const char *name)
+static void
+group_help (GXSubCommandOptionContext *context)
 {
   GList *cur;
-  for (cur = groups; cur; cur = g_list_next(cur))
+  const char *s;
+
+  s = g_option_context_get_summary (context->ctx);
+  if (s)
+    g_print ("%s\n", s); 
+
+  g_print (_("Available sub-commands:\n"));
+  for (cur = context->groups->head; cur; cur = g_list_next(cur))
     {
       OGroup *ogroup;
       ogroup = (OGroup*)cur->data;
 
-      if (g_strcmp0 (ogroup->name, name) == 0)
-        return ogroup;
+      g_print ("  %-20s%s\n", ogroup->name,
+	       ogroup->oneline ? ogroup->oneline : "");
     }
-
-  return NULL;
+  
+  s = g_option_context_get_description (context->ctx);
+  if (s)
+    g_print ("\n%s\n", s);
 }
 
 
@@ -267,35 +354,41 @@ gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
     {
       if ((*argv)[i][0] != '-')
         {
-          int j;
-          
+          int j;          
           ogroup = find_ogroup (context->groups, (*argv)[i]);
           if (!ogroup)
             {
               g_set_error (error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE,
-                           _("Unknown group %s"), (*argv)[0]);
+                           _("Unknown sub-command '%s'"), (*argv)[i]);
               return FALSE;
             }
 
-          g_option_context_add_group (context->ctx,
-                                      g_option_group_ref (ogroup->option_group));
+	  if (ogroup->option_group)
+	    g_option_context_add_group (context->ctx,
+					g_option_group_ref (ogroup->option_group));
           
           /* remove groupname */
-          for (j = i; j < *argc - 1; ++j)
-            (*argv)[j] = (*argv)[i + 1];
+          for (j = i; j < *argc; ++j)
+            (*argv)[j] = (*argv)[j + 1];
           (*argc)--;
+
+	  break;
         }
     }
   
   rv = g_option_context_parse (context->ctx, argc, argv, error);
   if (rv)
     {
-      ogroup->rest = g_new0 (gchar*, (*argc) + 1);
-      for (i = 0; i != *argc; ++i)
-        ogroup->rest[i] = g_strdup ((*argv)[i]);
-      
+      context->rest = g_new0 (gchar *, (*argc) + 1 - 1);
+      for (i = 1; i < *argc; ++i)
+	context->rest[i - 1] = g_strdup ((*argv)[i]);
+
       context->group = ogroup;
     }
+  
+  if (!ogroup)
+    group_help (context);
+  
   return rv;
 }
 
@@ -312,7 +405,7 @@ gx_sub_command_option_context_parse (GXSubCommandOptionContext *context,
 GOptionGroup*
 gx_sub_command_option_context_get_group (GXSubCommandOptionContext *context)
 {
-  g_return_val_if_fail (context, TRUE);
+  g_return_val_if_fail (context, NULL);
 
   return context->group ? context->group->option_group : NULL;
 }
@@ -341,12 +434,13 @@ gx_sub_command_option_context_execute (GXSubCommandOptionContext *context, GErro
 
   if (context->group && context->group->func)
     {
-      return context->group->func ((const char**)context->group->rest,
-                                   context->group->user_data, error);
+      return context->group->func ((const char**)context->rest,
+				   context->group->user_data, error);
     }
 
   return TRUE;
 }
+
 
 
 

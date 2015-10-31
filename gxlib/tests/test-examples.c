@@ -360,12 +360,18 @@ test_main (int argc, char *argv[])
   
   og = g_option_group_new ("add", "the add subcommand", "add", NULL, NULL);
   g_option_group_add_entries (og, add_entries);
-  gx_sub_command_option_context_add_group (sc_ctx, "add", og,
+  gx_sub_command_option_context_add_group (sc_ctx, "add",
+                                           "adding an item",
+                                           "longer explanation",
+                                           og,
                                            (GXSubCommandFunc)handle_add, NULL);
 
   og = g_option_group_new ("remove", "the remove subcommand", "remove", NULL, NULL);
   g_option_group_add_entries (og, remove_entries);
-  gx_sub_command_option_context_add_group (sc_ctx, "remove", og,
+  gx_sub_command_option_context_add_group (sc_ctx, "remove",
+                                           "adding an item",
+                                           "longer explanation",
+                                           og,
                                            (GXSubCommandFunc)handle_remove, NULL);
   err = NULL;
   rv = gx_sub_command_option_context_parse (sc_ctx, &argc, &argv, &err);
