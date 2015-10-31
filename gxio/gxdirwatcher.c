@@ -42,7 +42,7 @@
 struct _GXDirWatcherPrivate {
 	GHashTable	 *monitors;
 	char		**dirs;
-	gboolean	  scanning;
+	GCancellable	 *cancellable;
 	GList		 *matches;	/* list of regexps for files to watch */
 	char		**matchesv;
 	GList		 *ignores;	/* list of regexps for dirs to ignore */
@@ -154,7 +154,8 @@ get_property (GObject *obj, guint prop_id, GValue *val, GParamSpec *pspec)
 		g_value_set_boxed (val, self->priv->ignoresv);
 		break;
 	case PROP_SCANNING:
-		g_value_set_boolean (val, self->priv->scanning);
+		g_value_set_boolean (val, self->priv->cancellable ?
+				     TRUE : FALSE);
 		break;
 	case PROP_FLAGS:
 		g_value_set_uint (val, self->priv->flags);
@@ -289,13 +290,18 @@ gx_dir_watcher_finalize (GObject * obj)
 
 	self = GX_DIR_WATCHER (obj);
 
+	if (self->priv->cancellable) {
+		g_cancellable_cancel (self->priv->cancellable);
+		g_clear_object (&self->priv->cancellable);
+	}
+	
 	g_strfreev (self->priv->dirs);
 
 	if (self->priv->monitors)
 		g_hash_table_unref (self->priv->monitors);
 
-	g_list_free_full (self->priv->matches, (GDestroyNotify) g_regex_unref);
-	g_list_free_full (self->priv->ignores, (GDestroyNotify) g_regex_unref);
+	g_list_free_full (self->priv->matches, (GDestroyNotify)g_regex_unref);
+	g_list_free_full (self->priv->ignores, (GDestroyNotify)g_regex_unref);
 
 	g_strfreev (self->priv->matchesv);
 	g_strfreev (self->priv->ignoresv);
@@ -823,7 +829,7 @@ process_dir (GXDirWatcher *self, const char *path, GTask *task)
 
 static void
 scan_thread (GTask *task, GXDirWatcher *self, gpointer task_data,
-	    GCancellable *cancellable)
+	     GCancellable *cancellable)
 {
 	char **dir;
 	gboolean rv;
@@ -832,14 +838,14 @@ scan_thread (GTask *task, GXDirWatcher *self, gpointer task_data,
 		if (!(rv = process_dir (self, *dir, task)))
 			break;
 
-	self->priv->scanning = FALSE;
 	g_task_return_boolean (task, rv);
+	g_clear_object (&self->priv->cancellable);
 
 	g_object_unref (task);
 }
 
 void
-gx_dir_watcher_scan (GXDirWatcher *self, GCancellable*cancellable,
+gx_dir_watcher_scan (GXDirWatcher *self, GCancellable *cancellable,
 		    GAsyncReadyCallback callback, gpointer user_data)
 {
 	GTask *task;
@@ -847,18 +853,22 @@ gx_dir_watcher_scan (GXDirWatcher *self, GCancellable*cancellable,
 	g_return_if_fail (GX_IS_DIR_WATCHER (self));
 	g_return_if_fail (callback);
 
-	if (self->priv->scanning) {
+	if (self->priv->cancellable) {
 		g_task_report_new_error (self, callback, user_data, NULL,
-					G_IO_ERROR, G_IO_ERROR_BUSY,
-					"already scanning");
+					 G_IO_ERROR, G_IO_ERROR_BUSY,
+					 "Already scanning");
 		return;
 	}
 
-	self->priv->scanning = TRUE;
+	if (cancellable)
+		self->priv->cancellable	= g_object_ref (cancellable);
+	else
+		self->priv->cancellable = g_cancellable_new ();
+	
 	g_object_notify_by_pspec (G_OBJECT (self), PROPS[PROP_SCANNING]);
 
-	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_run_in_thread (task, (GTaskThreadFunc) scan_thread);
+	task = g_task_new (self, self->priv->cancellable, callback, user_data);
+	g_task_run_in_thread (task, (GTaskThreadFunc)scan_thread);
 }
 
 gboolean
@@ -870,7 +880,7 @@ gx_dir_watcher_scan_finish (GXDirWatcher *self, GAsyncResult *res,
 
 	/* if we're still scanning, nothing changed (would only happen when user
 	   calls scan while we were already scanning) */
-	if (!self->priv->scanning)
+	if (!self->priv->cancellable)
 		g_object_notify_by_pspec (G_OBJECT (self),
 					  PROPS[PROP_SCANNING]);
 
