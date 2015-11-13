@@ -210,10 +210,11 @@ static gboolean
 cmd_help (const char **rest, GXSubCommandOptionContext *context, GError **error)
 {
   OGroup *ogroup;
+  char *help;
   
   if (!rest || !rest[0])
     {
-      g_print ("%s", _("Use help <command> to get help about <command>\n"));
+      g_print ("%s", _("Use help <sub-command> to get specific help\n"));
       return TRUE;
     }
 
@@ -225,10 +226,20 @@ cmd_help (const char **rest, GXSubCommandOptionContext *context, GError **error)
       return FALSE;
     }
 
-  g_print (_("Sub-command: %s\n"), rest[0]);
+  g_print (_("%s - "), rest[0]);
   if (ogroup->description)
-    g_print ("%s\n", ogroup->description);
+    g_print ("%s\n\n", ogroup->oneline);
 
+  g_option_context_set_description (context->ctx, "");
+  g_option_context_set_summary (context->ctx, ogroup->description);
+  
+  g_option_context_add_group (context->ctx, ogroup->option_group);
+  help = g_option_context_get_help (context->ctx, FALSE, ogroup->option_group);
+  if (help)
+    g_print ("%s", help);
+
+  g_free (help);
+  
   return TRUE;
 }
 
@@ -298,6 +309,10 @@ group_help (GXSubCommandOptionContext *context)
   GList *cur;
   const char *s;
 
+  s = g_option_context_get_description (context->ctx);
+  if (s)
+    g_print ("%s\n", s); 
+  
   s = g_option_context_get_summary (context->ctx);
   if (s)
     g_print ("%s\n", s); 
@@ -308,13 +323,9 @@ group_help (GXSubCommandOptionContext *context)
       OGroup *ogroup;
       ogroup = (OGroup*)cur->data;
 
-      g_print ("  %-20s%s\n", ogroup->name,
+      g_print ("  %-14s %s\n", ogroup->name,
 	       ogroup->oneline ? ogroup->oneline : "");
     }
-  
-  s = g_option_context_get_description (context->ctx);
-  if (s)
-    g_print ("\n%s\n", s);
 }
 
 
@@ -414,7 +425,8 @@ gx_sub_command_option_context_get_group (GXSubCommandOptionContext *context)
 /**
  * gx_sub_command_option_context_execute:
  * @context: a #GXSubCommandOptionContext instance
- * @argc: (inout) (allow-none): a pointer to the number of command-line arguments
+ * @argc: (inout) (allow-none): a pointer to the number of command-line
+ * arguments
  * @argv: (inout) (allow-none) (array length=argc): a pointer to the array of
  * command-line arguments
  * @error: (allow-none): receives error information
