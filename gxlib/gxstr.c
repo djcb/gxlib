@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+** Copyright (C) 2015, 2016 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 **
 **  This library is free software; you can redistribute it and/or
 **  modify it under the terms of the GNU Lesser General Public License
@@ -34,7 +34,7 @@ strv_to_list (gchar **strv, gssize n, gboolean copy)
 {
   gint  i;
   GList *lst;
-  
+
   if (n < 0)
     for (lst = NULL; *strv; ++strv) {
       lst = g_list_prepend (lst, copy ? g_strdup (*strv): *strv);
@@ -45,14 +45,15 @@ strv_to_list (gchar **strv, gssize n, gboolean copy)
 
   return g_list_reverse (lst);
 }
-  
+
+
 /**
  * gx_strv_to_list:
  * @strv: an array of strings
  * @n: the number of strings in the array, or < 0 if it is %NULL-terminated.
  *
  * Create a #GList from the string in @strv. The strings are not copied.
- * 
+ *
  * Returns: (transfer full): a list with the strings; free with g_list_free().
  */
 GList*
@@ -68,7 +69,7 @@ gx_strv_to_list (gchar **strv, gssize n)
  * @n: the number of strings in the array, or < 0 if it is %NULL-terminated.
  *
  * Create a #GList from the string in @strv and copy the strings.
- * 
+ *
  * Returns: (transfer full): a list with the strings; free with
  * g_list_free_full() using g_free().
  */
@@ -83,7 +84,7 @@ gx_strv_to_list_copy (gchar **strv, gssize n)
 /**
  * gx_utf8_flatten:
  * @str: a UTF-8 string
- * @len: the length of @str, or -1 if it is %NULL-terminated 
+ * @len: the length of @str, or -1 if it is %NULL-terminated
  *
  * Flatten some UTF-8 string; that is, downcase it and remove any diacritics.
  *
@@ -96,13 +97,13 @@ gx_utf8_flatten (const gchar *str, gssize len)
   char    *norm, *cur;
 
   g_return_val_if_fail (str, NULL);
-  
+
   norm = g_utf8_normalize (str, len, G_NORMALIZE_ALL);
   if (!norm)
     return NULL;
 
   gstr = g_string_sized_new (strlen (norm));
-  
+
   for (cur = norm; cur && *cur; cur = g_utf8_next_char (cur))
     {
       gunichar gc;
@@ -110,13 +111,11 @@ gx_utf8_flatten (const gchar *str, gssize len)
       gc = g_utf8_get_char (cur);
       if (g_unichar_combining_class (gc) != 0)
         continue;
-        
+
       g_string_append_unichar (gstr, g_unichar_tolower(gc));
     }
 
   g_free (norm);
-  
+
   return g_string_free (gstr, FALSE);
 }
-
-

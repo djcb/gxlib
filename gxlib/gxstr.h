@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015 djcb <djcb@borealis>
+** Copyright (C) 2016 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 **
 **  This library is free software; you can redistribute it and/or
 **  modify it under the terms of the GNU Lesser General Public License
@@ -33,5 +33,3 @@ gchar* gx_utf8_flatten (const gchar *str, gssize len) G_GNUC_WARN_UNUSED_RESULT;
 G_END_DECLS
 
 #endif /* __GX_STR_H__ */
-
-
