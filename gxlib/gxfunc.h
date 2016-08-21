@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
+** Copyright (C) 2016 Dirk-Jan C. Binnema <djcb@djcbsoftware.nl>
 **
 **  This library is free software; you can redistribute it and/or
 **  modify it under the terms of the GNU Lesser General Public License
@@ -36,12 +36,12 @@ G_BEGIN_DECLS
  * |[<!-- language="C" -->
  * GList *lst;
  * int    sum;
- * 
+ *
  * lst = gx_list_iota (5, 5, 5); // 5, 10, 15, 20, 25
  * sum = GPOINTER_TO_INT(gx_list_fold (lst, (GXTernaryFunc)gx_times,
  *                                     GINT_TO_POINTER(1), NULL, NULL));
  * g_assert_cmpint (sum,==, 375000);
- * g_list_free (lst); 
+ * g_list_free (lst);
  * ]|
  *
  * Obviously, for such a simple case, the gx_list_fold() solution looks a bit
@@ -97,6 +97,28 @@ gx_identity (gconstpointer ptr)
  */
 typedef gpointer (*GXTernaryFunc) (gconstpointer p1, gconstpointer p2,
                                    gconstpointer user_data);
+
+
+/**
+ * gx_str_chain:
+ * @s1:(allow-none): a string value
+ * @s2: another string value
+ * @sepa: a separator character
+ *
+ * If @s1 and @s2 are not %NULL, return the contatenation of @s1 and @sepa and
+ * @s2. Otherwise, return a copy of @s2.
+ *
+ * |[<!-- language="C" -->
+ * g_assert_cmpint (gx_str_chain ("a", "b", "+"),==, "a+b");
+ * ]|
+ *
+ * Return value:(transfer-full): If @s1 and @s2 are not %NULL, return the
+ * contatenation of @s1 and @sepa and @s2. Otherwise, return a copy of @s2. Free
+ * with g_free().
+ */
+char* gx_str_chain (const char *s1, const char *s2, const char *sepa)
+  G_GNUC_WARN_UNUSED_RESULT;
+
 
 /**
  * gx_plus:
@@ -170,7 +192,7 @@ gx_max (gint i, gint j)
  * |[<!-- language="C" -->
  *   g_assert_cmpint (gx_min (123456, 54321),==, MIN(123456, 54321));
  * ]|
- * 
+ *
  * Return value: the smallest of @i and @j.
  */
 static inline gint

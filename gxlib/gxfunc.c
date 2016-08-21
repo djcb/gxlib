@@ -19,3 +19,12 @@
 
 #include <gxlib.h>
 
+
+char*
+gx_str_chain (const char *s1, const char *s2, const char *sepa)
+{
+  if (!s1)
+    return g_strdup (s2);
+  else
+    return g_strconcat (s1, sepa, s2, NULL);
+}
