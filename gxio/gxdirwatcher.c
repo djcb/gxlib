@@ -49,7 +49,7 @@ struct _GXDirWatcherPrivate {
 	char		**ignoresv;
 
 	GXDirWatcherFlags flags;
-	
+
 	GMutex lock;
 };
 
@@ -259,15 +259,14 @@ gx_dir_watcher_class_init (GXDirWatcherClass *klass)
 	 * Bitmask of #GXDirWatcherFlags that influence behavior.
 	 */
 	PROPS[PROP_FLAGS] =
-                g_param_spec_uint (
+		g_param_spec_uint (
 			"flags", "Flags",
 			"GXDirWatcherFlags that influence behavior",
 			GX_DIR_WATCHER_FLAG_NONE, G_MAXUINT,
 			GX_DIR_WATCHER_FLAG_NONE,
 			G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
 			G_PARAM_STATIC_STRINGS);
-	
-	
+
 	g_object_class_install_properties(gobject_class, PROP_NUM, PROPS);
 }
 
@@ -277,7 +276,7 @@ gx_dir_watcher_init(GXDirWatcher *self)
 	self->priv = gx_dir_watcher_get_instance_private(self);
 
 	g_mutex_init (&self->priv->lock);
-	
+
 	self->priv->monitors =
 	    g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
 				  (GDestroyNotify) g_object_unref);
@@ -294,7 +293,7 @@ gx_dir_watcher_finalize (GObject * obj)
 		g_cancellable_cancel (self->priv->cancellable);
 		g_clear_object (&self->priv->cancellable);
 	}
-	
+
 	g_strfreev (self->priv->dirs);
 
 	if (self->priv->monitors)
@@ -317,7 +316,7 @@ matches_any (GXDirWatcher *self, GList *rxs, const char *path)
 	gboolean rv;
 
 	g_mutex_lock (&self->priv->lock);
-	
+
 	for (rv = FALSE; rxs; rxs = g_list_next (rxs))
 		if ((rv = g_regex_match ((GRegex *) rxs->data, path, 0, NULL)))
 			break;
@@ -385,7 +384,7 @@ on_dir_changed (GFileMonitor *mon, GFile *file, GFile *other_file,
 		break;
 	case G_FILE_MONITOR_EVENT_DELETED:
 		g_hash_table_remove (self->priv->monitors, path);
-		
+
 	case G_FILE_MONITOR_EVENT_CHANGED:
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
@@ -397,7 +396,7 @@ on_dir_changed (GFileMonitor *mon, GFile *file, GFile *other_file,
 	}
 
 	g_signal_emit (self, SIGS[SIG_UPDATE], 0, ev_type, ftype, path);
-	
+
  leave:
 	g_free (path);
 	g_clear_error (&err);
@@ -414,7 +413,7 @@ install_monitor_maybe (GXDirWatcher *self, const char *path, GError **err)
 	/* only install monitor if we were initiated with the right flags */
 	if (!(self->priv->flags & GX_DIR_WATCHER_FLAG_MONITOR))
 		return TRUE;
-	
+
 	rv = FALSE;
 	info = NULL;
 
@@ -513,7 +512,7 @@ set_matches (GXDirWatcher *self, const char *const *rxs, GError **err)
 		return FALSE;
 
 	/* LOCK */ g_mutex_lock (&self->priv->lock);
-	
+
 	g_list_free_full (self->priv->matches, (GDestroyNotify)g_regex_unref);
 	self->priv->matches = g_list_reverse (lst);
 	g_strfreev (self->priv->matchesv);
@@ -536,9 +535,9 @@ set_ignores (GXDirWatcher *self, const char *const *rxs, GError **err)
 	lst = NULL;
 	if (rxs && *rxs && !(lst = get_rx_list (rxs, err)))
 		return FALSE;
-	
+
 	/* LOCK */ g_mutex_lock (&self->priv->lock);
-	
+
 	g_list_free_full (self->priv->ignores, (GDestroyNotify) g_regex_unref);
 	self->priv->ignores = g_list_reverse (lst);
 	g_strfreev (self->priv->ignoresv);
@@ -800,7 +799,7 @@ process_dir (GXDirWatcher *self, const char *path, GTask *task)
 
 	if (G_UNLIKELY(g_task_return_error_if_cancelled (task)))
 		return FALSE;
-	
+
 	if (ignored_path (self, path))
 		return TRUE;
 
@@ -864,7 +863,7 @@ gx_dir_watcher_scan (GXDirWatcher *self, GCancellable *cancellable,
 		self->priv->cancellable	= g_object_ref (cancellable);
 	else
 		self->priv->cancellable = g_cancellable_new ();
-	
+
 	g_object_notify_by_pspec (G_OBJECT (self), PROPS[PROP_SCANNING]);
 
 	task = g_task_new (self, self->priv->cancellable, callback, user_data);
