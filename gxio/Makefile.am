@@ -17,42 +17,43 @@
 include $(top_srcdir)/gtest.mk
 SUBDIRS=. tests
 
-AM_CFLAGS=					\
-	$(WARN_CFLAGS)				\
+AM_CFLAGS=			\
+	$(WARN_CFLAGS)		\
 	-Wno-switch-enum
 
-AM_CPPFLAGS=					\
-	-I$(top_srcdir)				\
-	$(GLIB_CFLAGS)				\
-	$(GIO_CFLAGS)				\
-	$(GOBJECT_CFLAGS)			\
-	$(WARN_CFLAGS)				\
-	$(GCOV_CFLAGS)
+AM_CPPFLAGS=			\
+	-I$(top_srcdir)		\
+	$(GLIB_CFLAGS)		\
+	$(GIO_CFLAGS)		\
+	$(GOBJECT_CFLAGS)	\
+	$(WARN_CFLAGS)		\
+	$(GCOV_CFLAGS)		\
+	-Wno-deprecated-declarations
 
-AM_LDFLAGS=					\
-	$(GLIB_LIBS)				\
-	$(GIO_LIBS)				\
-	$(GOBJECT_LIBS)				\
-	$(WARN_LDFLAGS)				\
+AM_LDFLAGS=			\
+	$(GLIB_LIBS)		\
+	$(GIO_LIBS)		\
+	$(GOBJECT_LIBS)		\
+	$(WARN_LDFLAGS)		\
 	$(GCOV_LDADD)
 
-lib_LTLIBRARIES=				\
+lib_LTLIBRARIES=		\
 	libgxio-2.0.la
 
-libgxio_2_0_la_SOURCES=				\
+libgxio_2_0_la_SOURCES=		\
 	gxdirwatcher.c
 
-libgxioincludedir=				\
+libgxioincludedir=		\
 	$(includedir)/gxlib-2.0/gxio
 
-libgxioinclude_HEADERS=				\
-	gxio.h					\
+libgxioinclude_HEADERS=		\
+	gxio.h			\
 	gxdirwatcher.h
 
-pkgconfigdir =					\
+pkgconfigdir =			\
 	$(libdir)/pkgconfig
-pkgconfig_DATA =				\
+pkgconfig_DATA =		\
 	gxio-2.0.pc
 
-EXTRA_DIST=					\
+EXTRA_DIST=			\
 	gxio-2.0.pc.in
