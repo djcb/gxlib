@@ -42,4 +42,4 @@ gtkdocize || exit $?
 autoreconf --force --install --verbose || exit $?
 
 cd "$olddir"
-test -n "$NOCONFIGURE" || "$srcdir/configure" "$@"
+test -n "$NOCONFIGURE" || "$srcdir/configure" -C "$@"
