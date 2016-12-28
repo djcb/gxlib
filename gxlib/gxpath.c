@@ -46,13 +46,13 @@ do_wordexp (const char *path)
   /* E.g. OpenBSD does not have wordexp.h, so we ignore it */
   return g_strdup (path)
 #endif /*HAVE_WORDEXP_H*/
-    
+
   wordexp_t  wexp;
   char      *dir;
 
   if (wordexp (path, &wexp, 0) != 0)
     return NULL;
-  
+
   /* we just pick the first one */
   dir = g_strdup (wexp.we_wordv[0]);
   wordfree (&wexp);

@@ -31,6 +31,3 @@ gchar* gx_path_resolve (const gchar *file_name)
 G_END_DECLS
 
 #endif /* __GXPATH_H__ */
-
-
-
