@@ -16,9 +16,3 @@
 ##  02110-1301, USA.
 
 include $(top_srcdir)/gtest.mk
-
-EXTRA_DIST =				\
-        ax_check_enable_debug.m4        \
-        ax_compiler_flags.m4            \
-        ax_is_release.m4                \
-        ax_valgrind_check.m4

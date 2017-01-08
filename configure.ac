@@ -15,17 +15,20 @@
 ##  Software Foundation, 51 Franklin Street, Fifth Floor, Boston, MA
 ##  02110-1301, USA.
 
-AC_PREREQ([2.62])
+AC_PREREQ([2.69])
 AC_INIT([gxlib],[2.0.0],
         [https://github.com/djcb/gxlib/issues],[gxlib])
 AC_COPYRIGHT([Copyright (C) 2015 Dirk-Jan C. Binnema])
+AC_CONFIG_AUX_DIR([build-aux])
+
+m4_ifndef([AX_COMPILER_FLAGS],
+  AC_MSG_ERROR([*** Please install 'autoconf-archive']))
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([gxlib/gxlib.h])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_AUX_DIR([xua])
 
-AM_INIT_AUTOMAKE([1.11 -Wno-portability no-define no-dist-gzip
+AM_INIT_AUTOMAKE([1.15 -Wno-portability no-define no-dist-gzip
                        dist-xz tar-ustar])
 AM_MAINTAINER_MODE([enable])
 
